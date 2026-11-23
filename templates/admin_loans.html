@@ -1,0 +1,7 @@
+{% extends 'base.html' %}{% block content %}
+<div class="eyebrow">ADMIN CONSOLE</div><h1>Manage loans</h1>
+<p>Filter loans and open a record to review repayment or foreclosure.</p>
+<div class="card"><form method="get" action="{{url_for('admin_loans')}}"><label for="status">Loan status</label><select name="status" id="status">{% for v in ['active','offered','accepted','closed','foreclosed','cancelled','all'] %}<option value="{{v}}" {% if status==v %}selected{% endif %}>{{v|replace('_',' ')|title}}</option>{% endfor %}</select><button class="primary">Filter</button></form></div>
+{% for l in loans %}<div class="card"><h3><a href="{{url_for('loan_detail',lid=l.id)}}">Loan #{{l.id}}</a></h3><p>{{l.application.user.name}} · ₹{{l.principal}} · {{l.status}}</p>
+{% if me.role=='admin' and l.status in ('offered','accepted','cancelled') %}<form method="post" action="{{url_for('archive_loan',lid=l.id)}}" onsubmit="return confirm('Archive this undisbursed loan? The record will be retained for audit.')"><input type="hidden" name="csrf" value="{{csrf}}"><label>Reason for archiving</label><input name="reason" minlength="8" maxlength="500" required placeholder="Reason for archiving"><button class="ghost">Archive loan</button></form>{% endif %}</div>{% else %}<p>No loans match this filter.</p>{% endfor %}
+{% endblock %}
